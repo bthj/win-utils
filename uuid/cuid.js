@@ -73,7 +73,7 @@ api.slug = function slug() {
 };
 
 //fingerprint changes based on nodejs or component setup
-var isBrowser = (typeof process == 'undefined');
+var isBrowser = (typeof process == 'undefined' || typeof process.pid == 'undefined');
 
 api.fingerprint = isBrowser ?
   function browserPrint() {

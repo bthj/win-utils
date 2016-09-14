@@ -77,8 +77,11 @@ var isBrowser = (typeof process == 'undefined' || typeof process.pid == 'undefin
 
 api.fingerprint = isBrowser ?
   function browserPrint() {
-      return pad((navigator.mimeTypes.length +
-          navigator.userAgent.length).toString(36) +
+      // navigator.Navigator is available on a web worker
+      var mimeTypesLength = navigator.mimeTypes ? navigator.mimeTypes.length : '';
+      var userAgentLength = navigator.userAgent.length;
+      return pad((mimeTypesLength +
+          userAgentLength).toString(36) +
           api.globalCount().toString(36), 4);
   }
 : function nodePrint() {
@@ -106,7 +109,16 @@ api.globalCount = function globalCount() {
 
             //global count only ever called inside browser environment
             //lets loop through and count the keys in window -- then cahce that as part of our fingerprint
-        for (i in window) {
+
+        var globalVar;
+        if (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope) {
+          // if condition from http://stackoverflow.com/a/18002694/169858
+          globalVar = self;
+        } else {
+          globalVar = window;
+        }
+
+        for (i in globalVar ) {
             count++;
         }
 
